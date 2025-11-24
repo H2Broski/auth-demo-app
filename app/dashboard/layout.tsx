@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getToken } from "@/app/components/Buttons/saveButton";
+import { getToken } from "../components/Buttons/saveButton";
 
 export default function DashboardLayout({
   children,
