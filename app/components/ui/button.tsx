@@ -28,4 +28,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = "Button";
 
+const variantStyles = {
+  default: "bg-blue-600 text-white hover:bg-blue-700 h-10 py-2 px-4",
+  link: "underline-offset-4 hover:underline text-blue-600 h-auto p-0",
+  outline:
+    "border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-700 h-10 py-2 px-4", // Add this line
+};
+
 export { Button };
