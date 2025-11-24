@@ -24,3 +24,7 @@ export function removeToken() {
     console.log("Token removed from localStorage");
   }
 }
+
+export function clearToken() {
+  localStorage.removeItem("token");
+}
