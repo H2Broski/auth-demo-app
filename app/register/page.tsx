@@ -2,21 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent } from "@/app/components/ui/card";
-import { Input } from "@/app/components/ui/input";
-import { Button } from "@/app/components/ui/button";
 import { API_BASE } from "@/app/lib/config";
-
-// Simple CardHeader component since it's not exported from your UI
-const CardHeader = ({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={`flex flex-col space-y-1.5 p-6 pb-4 ${className || ""}`}
-    {...props}
-  />
-);
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -75,7 +61,7 @@ export default function RegisterPage() {
 
       setSuccess("Registration successful! Redirecting to login...");
       setTimeout(() => {
-        router.push("/");
+        router.push("/?message=Registration successful! Please login.");
       }, 2000);
     } catch (err) {
       console.error("Registration error:", err);
@@ -103,14 +89,14 @@ export default function RegisterPage() {
         </div>
 
         {/* Register Card */}
-        <Card className="w-full border-0 shadow-2xl">
-          <CardHeader className="text-center space-y-2">
+        <div className="rounded-2xl border-0 bg-white/80 backdrop-blur-sm text-gray-900 shadow-xl w-full border-0 shadow-2xl">
+          <div className="flex flex-col space-y-1.5 p-6 pb-4 text-center space-y-2">
             <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
             <p className="text-gray-500 text-sm">
               Fill in your details to register
             </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
+          </div>
+          <div className="p-6 pt-0 space-y-6">
             <form onSubmit={handleRegister} className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -120,7 +106,7 @@ export default function RegisterPage() {
                   >
                     Username
                   </label>
-                  <Input
+                  <input
                     id="username"
                     placeholder="Choose a username"
                     value={username}
@@ -130,7 +116,7 @@ export default function RegisterPage() {
                     required
                     disabled={isLoading}
                     minLength={3}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base"
+                    className="flex h-12 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <p className="text-xs text-gray-500">
                     Must be at least 3 characters
@@ -144,7 +130,7 @@ export default function RegisterPage() {
                   >
                     Password
                   </label>
-                  <Input
+                  <input
                     id="password"
                     type="password"
                     placeholder="Create a password"
@@ -155,7 +141,7 @@ export default function RegisterPage() {
                     required
                     disabled={isLoading}
                     minLength={6}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base"
+                    className="flex h-12 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <p className="text-xs text-gray-500">
                     Must be at least 6 characters
@@ -169,7 +155,7 @@ export default function RegisterPage() {
                   >
                     Confirm Password
                   </label>
-                  <Input
+                  <input
                     id="confirmPassword"
                     type="password"
                     placeholder="Confirm your password"
@@ -179,7 +165,7 @@ export default function RegisterPage() {
                     }
                     required
                     disabled={isLoading}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base"
+                    className="flex h-12 w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -199,8 +185,8 @@ export default function RegisterPage() {
                 </div>
               )}
 
-              <Button
-                className="w-full py-3 bg-gradient-to-br from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              <button
+                className="w-full py-3 bg-gradient-to-br from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none inline-flex items-center justify-center rounded-xl text-base font-semibold focus-visible:outline-none disabled:pointer-events-none h-12 px-4"
                 type="submit"
                 disabled={isLoading}
               >
@@ -212,7 +198,7 @@ export default function RegisterPage() {
                 ) : (
                   "Create Account"
                 )}
-              </Button>
+              </button>
             </form>
 
             {/* Divider */}
@@ -227,17 +213,16 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Login Link - Using variant="link" since that's what your Button supports */}
-            <Button
-              variant="link"
-              className="w-full py-3 text-gray-700 hover:text-gray-900 font-semibold rounded-xl transition-all border border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50"
+            {/* Login Link */}
+            <button
+              className="w-full py-3 text-gray-700 hover:text-gray-900 font-semibold rounded-xl transition-all border border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 inline-flex items-center justify-center rounded-xl text-base font-semibold focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 h-12 px-4"
               onClick={() => router.push("/")}
               disabled={isLoading}
             >
               Back to Login
-            </Button>
-          </CardContent>
-        </Card>
+            </button>
+          </div>
+        </div>
 
         {/* Footer */}
         <div className="text-center mt-8">
