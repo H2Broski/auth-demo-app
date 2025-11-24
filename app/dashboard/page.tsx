@@ -3,27 +3,117 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getToken, clearToken } from "@/app/components/Buttons/saveButton";
-import {
-  mockStats,
-  mockBooks,
-  mockStudents,
-  mockBorrowRecords,
-} from "@/app/lib/mockData";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://nestjsdemo-8840.onrender.com";
 
-// ... keep your existing interfaces ...
+interface Stats {
+  totalBooks: number;
+  totalStudents: number;
+  totalStaff: number;
+  totalCategories: number;
+  activeBorrowings: number;
+  overdueBooks: number;
+}
+
+interface Book {
+  book_id: number;
+  title: string;
+  author: string;
+  published_year: number;
+  category_name: string;
+}
+
+interface Student {
+  student_id: number;
+  first_name: string;
+  last_name: string;
+  course: string;
+  year_level: number;
+}
+
+interface BorrowRecord {
+  borrow_id: number;
+  student_name: string;
+  book_title: string;
+  staff_name: string;
+  borrow_date: string;
+  return_date: string | null;
+}
+
+// Mock data for fallback
+const mockStats = {
+  totalBooks: 1247,
+  totalStudents: 856,
+  totalStaff: 42,
+  totalCategories: 28,
+  activeBorrowings: 167,
+  overdueBooks: 23,
+};
+
+const mockBooks = [
+  {
+    book_id: 1,
+    title: "The Great Gatsby",
+    author: "F. Scott Fitzgerald",
+    published_year: 1925,
+    category_name: "Classic Literature",
+  },
+  {
+    book_id: 2,
+    title: "To Kill a Mockingbird",
+    author: "Harper Lee",
+    published_year: 1960,
+    category_name: "Fiction",
+  },
+];
+
+const mockStudents = [
+  {
+    student_id: 1,
+    first_name: "John",
+    last_name: "Doe",
+    course: "Computer Science",
+    year_level: 3,
+  },
+  {
+    student_id: 2,
+    first_name: "Jane",
+    last_name: "Smith",
+    course: "Engineering",
+    year_level: 2,
+  },
+];
+
+const mockBorrowRecords = [
+  {
+    borrow_id: 1,
+    student_name: "John Doe",
+    book_title: "The Great Gatsby",
+    staff_name: "Dr. Wilson",
+    borrow_date: "2024-01-15",
+    return_date: "2024-01-22",
+  },
+  {
+    borrow_id: 2,
+    student_name: "Jane Smith",
+    book_title: "1984",
+    staff_name: "Dr. Wilson",
+    borrow_date: "2024-01-18",
+    return_date: null,
+  },
+];
 
 export default function LibraryDashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
     "overview" | "books" | "students" | "transactions"
   >("overview");
-  const [stats, setStats] = useState(mockStats);
-  const [books, setBooks] = useState(mockBooks);
-  const [students, setStudents] = useState(mockStudents);
-  const [borrowRecords, setBorrowRecords] = useState(mockBorrowRecords);
+  const [stats, setStats] = useState<Stats>(mockStats);
+  const [books, setBooks] = useState<Book[]>(mockBooks);
+  const [students, setStudents] = useState<Student[]>(mockStudents);
+  const [borrowRecords, setBorrowRecords] =
+    useState<BorrowRecord[]>(mockBorrowRecords);
   const [loading, setLoading] = useState(true);
   const [dataLoading, setDataLoading] = useState(false);
   const [useMockData, setUseMockData] = useState(true);
@@ -39,9 +129,43 @@ export default function LibraryDashboard() {
       return;
     }
     setLoading(false);
-
-    // Try to fetch real data, fallback to mock data
     fetchRealData();
+  };
+
+  useEffect(() => {
+    if (!loading && activeTab !== "overview") {
+      if (activeTab === "books") fetchBooks();
+      if (activeTab === "students") fetchStudents();
+      if (activeTab === "transactions") fetchBorrowRecords();
+    }
+  }, [activeTab, loading]);
+
+  // Fetch functions
+  const fetchWithAuth = async (url: string) => {
+    const token = getToken();
+    if (!token) {
+      router.push("/login");
+      throw new Error("No token");
+    }
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 401) {
+      clearToken();
+      router.push("/login");
+      throw new Error("Unauthorized");
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   };
 
   const fetchRealData = async () => {
@@ -58,15 +182,7 @@ export default function LibraryDashboard() {
         const realStats = await statsResponse.json();
         setStats(realStats);
         setUseMockData(false);
-
-        // Fetch other real data
-        await Promise.all([
-          fetchBooks(),
-          fetchStudents(),
-          fetchBorrowRecords(),
-        ]);
       } else {
-        // Use mock data if real API fails
         setUseMockData(true);
       }
     } catch (error) {
@@ -77,12 +193,73 @@ export default function LibraryDashboard() {
     }
   };
 
-  // ... keep your existing fetch functions, but add mock data fallback ...
+  const fetchBooks = async () => {
+    try {
+      setDataLoading(true);
+      if (useMockData) {
+        setBooks(mockBooks);
+      } else {
+        const data = await fetchWithAuth(`${API_BASE_URL}/api/books`);
+        setBooks(data);
+      }
+    } catch (error) {
+      console.error("Error fetching books:", error);
+      setBooks(mockBooks);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  const fetchStudents = async () => {
+    try {
+      setDataLoading(true);
+      if (useMockData) {
+        setStudents(mockStudents);
+      } else {
+        const data = await fetchWithAuth(`${API_BASE_URL}/api/students`);
+        setStudents(data);
+      }
+    } catch (error) {
+      console.error("Error fetching students:", error);
+      setStudents(mockStudents);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  const fetchBorrowRecords = async () => {
+    try {
+      setDataLoading(true);
+      if (useMockData) {
+        setBorrowRecords(mockBorrowRecords);
+      } else {
+        const data = await fetchWithAuth(`${API_BASE_URL}/api/borrow-records`);
+        setBorrowRecords(data);
+      }
+    } catch (error) {
+      console.error("Error fetching borrow records:", error);
+      setBorrowRecords(mockBorrowRecords);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    clearToken();
+    router.push("/login");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <header className="mb-8">
           <div className="flex justify-between items-start mb-6">
             <div>
@@ -116,7 +293,6 @@ export default function LibraryDashboard() {
             </div>
           </div>
 
-          {/* Navigation Tabs */}
           <nav className="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-sm">
             {(["overview", "books", "students", "transactions"] as const).map(
               (tab) => (
@@ -136,7 +312,6 @@ export default function LibraryDashboard() {
           </nav>
         </header>
 
-        {/* Main Content */}
         {dataLoading ? (
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm p-8 flex items-center justify-center">
             <div className="text-center">
@@ -159,8 +334,8 @@ export default function LibraryDashboard() {
   );
 }
 
-// Enhanced Overview Component with Icons
-function Overview({ stats }: { stats: any }) {
+// Component functions
+function Overview({ stats }: { stats: Stats }) {
   const statCards = [
     {
       title: "Total Books",
@@ -225,10 +400,12 @@ function Overview({ stats }: { stats: any }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {statCards.map((stat, index) => (
+        {statCards.map((stat) => (
           <div
             key={stat.title}
-            className="bg-gradient-to-br ${colorClasses[stat.color as keyof typeof colorClasses]} text-white rounded-2xl p-6 shadow-lg transform hover:scale-105 transition-transform duration-200"
+            className={`bg-gradient-to-br ${
+              colorClasses[stat.color as keyof typeof colorClasses]
+            } text-white rounded-2xl p-6 shadow-lg transform hover:scale-105 transition-transform duration-200`}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="text-3xl">{stat.icon}</div>
@@ -239,57 +416,11 @@ function Overview({ stats }: { stats: any }) {
           </div>
         ))}
       </div>
-
-      {/* Quick Actions */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-800 mb-2">Quick Actions</h3>
-          <div className="space-y-2">
-            <button className="w-full text-left text-blue-600 hover:text-blue-700 text-sm py-1">
-              + Add New Book
-            </button>
-            <button className="w-full text-left text-blue-600 hover:text-blue-700 text-sm py-1">
-              + Register Student
-            </button>
-            <button className="w-full text-left text-blue-600 hover:text-blue-700 text-sm py-1">
-              📋 Process Borrowing
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-800 mb-2">Recent Activity</h3>
-          <div className="space-y-2 text-sm text-gray-600">
-            <div>📖 Jane Smith borrowed "1984"</div>
-            <div>✅ John Doe returned "The Great Gatsby"</div>
-            <div>➕ New book "The Hobbit" added</div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h3 className="font-semibold text-gray-800 mb-2">System Status</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Database:</span>
-              <span className="text-green-500">● Connected</span>
-            </div>
-            <div className="flex justify-between">
-              <span>API:</span>
-              <span className="text-green-500">● Online</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Last Sync:</span>
-              <span className="text-gray-500">Just now</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
 
-// Enhanced Books Component
-function Books({ books }: { books: any[] }) {
+function Books({ books }: { books: Book[] }) {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -354,8 +485,7 @@ function Books({ books }: { books: any[] }) {
   );
 }
 
-// Enhanced Students Component
-function Students({ students }: { students: any[] }) {
+function Students({ students }: { students: Student[] }) {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -397,8 +527,7 @@ function Students({ students }: { students: any[] }) {
   );
 }
 
-// Enhanced Transactions Component
-function Transactions({ records }: { records: any[] }) {
+function Transactions({ records }: { records: BorrowRecord[] }) {
   return (
     <div>
       <h2 className="text-3xl font-bold text-gray-800 mb-6">
