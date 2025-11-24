@@ -52,36 +52,6 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="space-y-4 mb-6">
-            <h3 className="text-lg font-semibold">Quick Links:</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={() => router.push("/about")}
-                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-              >
-                About
-              </button>
-              <button
-                onClick={() => router.push("/education")}
-                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-              >
-                Education
-              </button>
-              <button
-                onClick={() => router.push("/hobbies")}
-                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-              >
-                Hobbies
-              </button>
-              <button
-                onClick={() => router.push("/contact")}
-                className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
-              >
-                Contact
-              </button>
-            </div>
-          </div>
-
           <button
             onClick={handleLogout}
             className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
