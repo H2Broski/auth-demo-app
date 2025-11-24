@@ -214,15 +214,14 @@ export default function RegisterPage() {
             </div>
 
             {/* Login Link */}
-            <button
-              className="w-full py-3 text-gray-700 hover:text-gray-900 font-semibold rounded-xl transition-all border border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50 inline-flex items-center justify-center rounded-xl text-base font-semibold focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 h-12 px-4"
-              onClick={() => router.push("/")}
-              disabled={isLoading}
-            >
-              Back to Login
-            </button>
-          </div>
-        </div>
+            <Button
+  variant="link"
+  className="w-full py-3 h-12 text-gray-700 hover:text-gray-900 font-semibold rounded-xl transition-all border border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50"
+  onClick={() => router.push("/")}
+  disabled={isLoading}
+>
+  Back to Login {/* Fix this line */}
+</Button>
 
         {/* Footer */}
         <div className="text-center mt-8">
