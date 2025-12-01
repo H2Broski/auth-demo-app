@@ -8,7 +8,7 @@ const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://nestjsdemo-8840.onrender.com";
 
 interface Position {
-  id: number;
+  position_id: number;
   position_code: string;
   position_name: string;
 }
@@ -96,7 +96,7 @@ export default function PositionsDashboard() {
   };
 
   const handleEdit = (position: Position) => {
-    setEditingId(position.id);
+    setEditingId(position.position_id);
     setPositionCode(position.position_code);
     setPositionName(position.position_name);
   };
@@ -306,10 +306,10 @@ export default function PositionsDashboard() {
                   ) : (
                     positions.map((position) => (
                       <tr
-                        key={position.id}
+                        key={position.position_id}
                         className="border-b border-gray-100 hover:bg-gray-50"
                       >
-                        <td className="py-3 px-4">{position.id}</td>
+                        <td className="py-3 px-4">{position.position_id}</td>
                         <td className="py-3 px-4">{position.position_code}</td>
                         <td className="py-3 px-4">{position.position_name}</td>
                         <td className="py-3 px-4">
@@ -321,7 +321,7 @@ export default function PositionsDashboard() {
                               Edit
                             </button>
                             <button
-                              onClick={() => handleDelete(position.id)}
+                              onClick={() => handleDelete(position.position_id)}
                               className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded font-medium transition-colors"
                             >
                               Delete
