@@ -22,6 +22,7 @@ export default function PositionsDashboard() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     const token = getToken();
@@ -36,6 +37,7 @@ export default function PositionsDashboard() {
     const token = getToken();
     if (!token) return;
 
+    setRefreshing(true);
     try {
       const response = await fetch(`${API_URL}/positions`, {
         headers: {
@@ -46,6 +48,7 @@ export default function PositionsDashboard() {
       if (response.ok) {
         const data = await response.json();
         setPositions(data);
+        setError("");
       } else {
         setError("Failed to fetch positions");
       }
@@ -53,6 +56,7 @@ export default function PositionsDashboard() {
       setError("Error connecting to server");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -120,14 +124,15 @@ export default function PositionsDashboard() {
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        setSuccess("Position updated successfully!");
+        setSuccess(data.message || "Position updated successfully!");
         setPositionCode("");
         setPositionName("");
         setEditingId(null);
-        fetchPositions();
+        await fetchPositions();
       } else {
-        const data = await response.json();
         setError(data.message || "Failed to update position");
       }
     } catch (err) {
@@ -152,11 +157,12 @@ export default function PositionsDashboard() {
         },
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        setSuccess("Position deleted successfully!");
-        fetchPositions();
+        setSuccess(data.message || "Position deleted successfully!");
+        await fetchPositions();
       } else {
-        const data = await response.json();
         setError(data.message || "Failed to delete position");
       }
     } catch (err) {
@@ -189,9 +195,17 @@ export default function PositionsDashboard() {
           <div className="flex gap-4">
             <button
               onClick={fetchPositions}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              disabled={refreshing}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              Refresh
+              {refreshing ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Refreshing...
+                </>
+              ) : (
+                "Refresh"
+              )}
             </button>
             <button
               onClick={() => router.push("/dashboard")}
