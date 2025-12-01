@@ -151,6 +151,12 @@ export default function LibraryDashboard() {
                 </button>
               )
             )}
+            <button
+              onClick={() => router.push("/positions")}
+              className="flex-1 py-3 px-6 font-semibold rounded-lg transition-all text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-sm"
+            >
+              Positions CRUD
+            </button>
           </nav>
         </header>
 
